@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta de Cumpleaños</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #f5f2f0 0%, #ede5e0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #5a4a42;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        /* Carta inicial */
+        .envelope {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(145deg, #d4af9a, #c09885);
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .envelope:hover {
+            transform: translateY(-5px);
+        }
+
+        .envelope::before {
+            content: '💌';
+            font-size: 4rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .envelope-text {
+            position: absolute;
+            bottom: 30px;
+            color: #8b4513;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Páginas */
+        .page {
+            width: 100%;
+            min-height: 500px;
+            background: #fafafa;
+            border-radius: 15px;
+            padding: 30px 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 0;
+            opacity: 0;
+            transform: rotateY(-90deg);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e8ddd4;
+        }
+
+        .page.active {
+            opacity: 1;
+            transform: rotateY(0deg);
+            position: relative;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #d4af9a;
+            padding-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            color: #8b4513;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        .page-subtitle {
+            font-size: 1rem;
+            color: #a0856b;
+            font-style: italic;
+        }
+
+        /* Contenido de bienvenida */
+        .welcome-content {
+            text-align: center;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #6b5b54;
+        }
+
+        .welcome-content p {
+            margin-bottom: 20px;
+        }
+
+        /* Lugares */
+        .place-emoji {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .place-content {
+            text-align: center;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #6b5b54;
+        }
+
+        .place-content h3 {
+            color: #8b4513;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        /* Mensaje final */
+        .final-message {
+            text-align: center;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #6b5b54;
+            margin-bottom: 30px;
+        }
+
+        .heart-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .heart-image {
+            width: 150px;
+            height: 150px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 85c-2-2-45-35-45-60 0-15 10-25 25-25 10 0 15 5 20 15 5-10 10-15 20-15 15 0 25 10 25 25 0 25-43 58-45 60z" fill="%23d4af9a"/></svg>') center/contain no-repeat;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Navegación */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e8ddd4;
+        }
+
+        .nav-button {
+            background: #d4af9a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-button:hover {
+            background: #c09885;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .page-indicator {
+            color: #a0856b;
+            font-size: 0.9rem;
+        }
+
+        /* Responsividad */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 350px;
+            }
+            
+            .page {
+                padding: 25px 20px;
+                min-height: 450px;
+            }
+            
+            .page-title {
+                font-size: 1.7rem;
+            }
+            
+            .place-emoji {
+                font-size: 3.5rem;
+            }
+            
+            .welcome-content, .place-content, .final-message {
+                font-size: 1rem;
+            }
+            
+            .heart-image {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .page {
+                padding: 20px 15px;
+            }
+            
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Carta inicial -->
+        <div class="envelope" id="envelope" onclick="openLetter()">
+            <div class="envelope-text">Toca para abrir tu carta</div>
+        </div>
+
+        <!-- Página de bienvenida -->
+        <div class="page" id="page-welcome">
+            <div class="page-header">
+                <h1 class="page-title">¡Feliz Cumpleaños!</h1>
+                <p class="page-subtitle">Una aventura especial te espera</p>
+            </div>
+            <div class="welcome-content">
+                <p>Mi amor, hoy es tu día especial y quiero llevarte en un viaje a través de lugares en los que guardaremos recuerdos muy hermosos.</p>
+                <p>Cada lugar tiene una historia que contar, un momento que atesorar.</p>
+                <p>Prepárate para vivir la magia de nuestro amor...</p>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" disabled>← Anterior</button>
+                <span class="page-indicator">1 de 7</span>
+                <button class="nav-button" onclick="nextPage()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- Lugar 1: Patines de hielo -->
+        <div class="page" id="page-place1">
+            <div class="page-header">
+                <h1 class="page-title">Lugar 1</h1>
+            </div>
+            <div class="place-emoji">⛸️</div>
+            <div class="place-content">
+                <h3></h3>
+                <p>Empezamos con una aventura que sobrepasará los límites navideños y donde podremos bailar al ritmo de rodolfo.</p>
+                <p>Cada tropiezo, es una risa y cada risa es una luz en mi corazón y un recuerdo imborrable.</p>
+                <p>Porque contigo cualquier aventura se vuelve extraordinaria.</p>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevPage()">← Anterior</button>
+                <span class="page-indicator">2 de 7</span>
+                <button class="nav-button" onclick="nextPage()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- Lugar 2: Puente -->
+        <div class="page" id="page-place2">
+            <div class="page-header">
+                <h1 class="page-title">Lugar 2</h1>
+            </div>
+            <div class="place-emoji">🌉</div>
+            <div class="place-content">
+                <h3></h3>
+                <p>Bajo las estrellas, un puente que conecta dos mundos, será testigo de nuestro amor</p>
+                <p> Los carruajes correrán rápidamente bajo nosotros, como el tiempo que fluye llevándonos hacia el futuro juntos.</p>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevPage()">← Anterior</button>
+                <span class="page-indicator">3 de 7</span>
+                <button class="nav-button" onclick="nextPage()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- Lugar 3: Café -->
+        <div class="page" id="page-place3">
+            <div class="page-header">
+                <h1 class="page-title">Lugar 3</h1>
+            </div>
+            <div class="place-emoji">☕</div>
+            <div class="place-content">
+                <p>Entre el aroma del café recién hecho y conversaciones que duraban horas, construimos nuestro refugio especial.</p>
+                <p>Cada sorbo era una excusa para mirarte a los ojos y perderme en tu sonrisa.</p>
+                <p>Ahí entendí que la felicidad se encuentra en los momentos simples contigo.</p>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevPage()">← Anterior</button>
+                <span class="page-indicator">4 de 7</span>
+                <button class="nav-button" onclick="nextPage()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- Lugar 4: Cartas -->
+        <div class="page" id="page-place4">
+            <div class="page-header">
+                <h1 class="page-title">Lugar 4</h1>
+            </div>
+            <div class="place-emoji">🃏</div>
+            <div class="place-content">
+                <p>Las apuestas corren sobre la mesa mientras reíamos sin parar. No importaba si ganabamos o perdieramos.</p>
+                <p>Lo importante era estar juntos, compartiendo bromas y creando memorias que durarían para siempre.</p>
+                <p>Cada momento era una nueva oportunidad de enamorarme más de ti.</p>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevPage()">← Anterior</button>
+                <span class="page-indicator">5 de 7</span>
+                <button class="nav-button" onclick="nextPage()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- Lugar 5: Casa -->
+        <div class="page" id="page-place5">
+            <div class="page-header">
+                <h1 class="page-title">Lugar 5</h1>
+            </div>
+            <div class="place-emoji">🏠</div>
+            <div class="place-content">
+                <p>En ese lugar especial donde el tiempo se detiene.</p>
+                <p>Donde vemos películas, bailamos en la sala y soñamos con el futuro abrazados.</p>
+                <p>Ahí confirmé que el hogar no es un lugar, sino estar contigo.</p>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevPage()">← Anterior</button>
+                <span class="page-indicator">6 de 7</span>
+                <button class="nav-button" onclick="nextPage()">Siguiente →</button>
+            </div>
+        </div>
+
+        <!-- Página final -->
+        <div class="page" id="page-final">
+            <div class="page-header">
+                <h1 class="page-title">Para ti, mi amor</h1>
+                <p class="page-subtitle">En tu día especial</p>
+            </div>
+            <div class="final-message">
+                <p>Cada lugar, cada momento, cada recuerdo... todo cobra sentido contigo.</p>
+                <p>Hoy celebramos no solo tu cumpleaños, sino la magia de tenerte en mi vida.</p>
+                <p>Que este nuevo año te traiga toda la felicidad que mereces y que sigamos escribiendo juntos la historia más hermosa de amor.</p>
+                <p><strong>¡Feliz cumpleaños, te amo!</strong></p>
+            </div>
+            <div class="heart-container">
+                <div class="heart-image"></div>
+            </div>
+            <div class="navigation">
+                <button class="nav-button" onclick="prevPage()">← Anterior</button>
+                <span class="page-indicator">7 de 7</span>
+                <button class="nav-button" disabled>Siguiente →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = -1; // -1 para la carta inicial
+        const totalPages = 6; // 0: bienvenida, 1-5: lugares, 6: final
+        
+        function openLetter() {
+            const envelope = document.getElementById('envelope');
+            const welcomePage = document.getElementById('page-welcome');
+            
+            envelope.style.transform = 'rotateY(-90deg)';
+            envelope.style.opacity = '0';
+            
+            setTimeout(() => {
+                envelope.style.display = 'none';
+                welcomePage.classList.add('active');
+                currentPage = 0;
+            }, 600);
+        }
+        
+        function nextPage() {
+            if (currentPage < totalPages) {
+                const currentElement = getCurrentPageElement();
+                const nextElement = getPageElement(currentPage + 1);
+                
+                if (currentElement && nextElement) {
+                    currentElement.classList.remove('active');
+                    currentElement.style.transform = 'rotateY(90deg)';
+                    
+                    setTimeout(() => {
+                        nextElement.classList.add('active');
+                        currentPage++;
+                        updateNavigation();
+                    }, 300);
+                }
+            }
+        }
+        
+        function prevPage() {
+            if (currentPage > 0) {
+                const currentElement = getCurrentPageElement();
+                const prevElement = getPageElement(currentPage - 1);
+                
+                if (currentElement && prevElement) {
+                    currentElement.classList.remove('active');
+                    currentElement.style.transform = 'rotateY(-90deg)';
+                    
+                    setTimeout(() => {
+                        prevElement.classList.add('active');
+                        currentPage--;
+                        updateNavigation();
+                    }, 300);
+                }
+            }
+        }
+        
+        function getCurrentPageElement() {
+            return getPageElement(currentPage);
+        }
+        
+        function getPageElement(pageIndex) {
+            const pageIds = [
+                'page-welcome',
+                'page-place1', 
+                'page-place2', 
+                'page-place3', 
+                'page-place4', 
+                'page-place5',
+                'page-final'
+            ];
+            
+            return pageIndex >= 0 && pageIndex < pageIds.length ? 
+                   document.getElementById(pageIds[pageIndex]) : null;
+        }
+        
+        function updateNavigation() {
+            const currentElement = getCurrentPageElement();
+            if (!currentElement) return;
+            
+            const prevButton = currentElement.querySelector('.navigation .nav-button:first-child');
+            const nextButton = currentElement.querySelector('.navigation .nav-button:last-child');
+            const indicator = currentElement.querySelector('.page-indicator');
+            
+            if (prevButton) {
+                prevButton.disabled = currentPage === 0;
+            }
+            
+            if (nextButton) {
+                nextButton.disabled = currentPage === totalPages;
+            }
+            
+            if (indicator) {
+                indicator.textContent = `${currentPage + 1} de ${totalPages + 1}`;
+            }
+        }
+        
+        // Prevenir selección de texto en dispositivos móviles
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+        
+        // Optimización para dispositivos táctiles
+        document.addEventListener('touchstart', function() {}, { passive: true });
+    </script>
+</body>
+</html>
